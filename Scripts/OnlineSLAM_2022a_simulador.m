@@ -52,11 +52,11 @@ figure
 while (1)
     % Read the laser message
     msg_laser = sub_laser.LatestMessage;
-    ranges = double(msg_laser.Ranges)
-    angles = double(linspace(double(msg_laser.AngleMin), double(msg_laser.AngleMax), double(400)))
+    %ranges = double(msg_laser.Ranges)
+    %angles = double(linspace(double(msg_laser.AngleMin), double(msg_laser.AngleMax), double(400)))
         
     % Create lidarScan object from scan message
-    scans= lidarScan(ranges, angles);
+    scans= lidarScan(msg_laser);
       
     [isScanAccepted, loopClosureInfo, optimizationInfo] = addScan(slamObj, scans);
     if isScanAccepted
