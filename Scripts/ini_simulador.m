@@ -3,7 +3,7 @@
 sub_odom=rossubscriber('/robot0/odom', 'nav_msgs/Odometry');
 sub_odom=rossubscriber('/robot0/local_odom', 'nav_msgs/Odometry');
 %  Laser
-sub_laser=rossubscriber('/robot0/laser_0', 'sensor_msgs/LaserScan');
+sub_laser=rossubscriber('/robot0/laser_1', 'sensor_msgs/LaserScan');
 %  Sonares
 sub_sonar0=rossubscriber('/robot0/sonar_0', 'sensor_msgs/Range');
 sub_sonar1=rossubscriber('/robot0/sonar_1', 'sensor_msgs/Range');
