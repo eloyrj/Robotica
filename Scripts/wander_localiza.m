@@ -129,7 +129,3 @@ while(1)
     waitfor(r);
 
 end
-if isUpdated
-    i = i + 1;
-    plotStep(visualizationHelper, amcl, estimatedPose, scans, i)
-end
