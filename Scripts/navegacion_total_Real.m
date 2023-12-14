@@ -1,14 +1,15 @@
 %Definir la posicion de destino
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-endLocation = [14 2];
+endLocation = [6 0];
 
 %Cargar el mapa
 %%%%%%%%%%%%%%%
 
 close all
 
-load mi_mapa_slam_sim_sinRuido.mat
+load map_modified.mat
+map=map_modified
 show(map);
 fig_laser=figure; title('LASER')
 fig_vfh=figure; title('VFH')
@@ -41,8 +42,8 @@ rangeFinderModel.Map = map;
 
 tftree = rostf;
 %Obtener transformada entre los frames del robot y del sensor_laser
-waitForTransform(tftree,'robot0','robot0_laser_1');
-sensorTransform = getTransform(tftree,'robot0', 'robot0_laser_1');
+waitForTransform(tftree,'base_link','laser_frame');
+sensorTransform = getTransform(tftree,'base_link', 'laser_frame');
 
 % Get the euler rotation angles.
 laserQuat = [sensorTransform.Transform.Rotation.W sensorTransform.Transform.Rotation.X sensorTransform.Transform.Rotation.Y sensorTransform.Transform.Rotation.Z];
@@ -60,7 +61,7 @@ amcl.UpdateThresholds = [0.2,0.2,0.2];
 amcl.ResamplingInterval = 1;
 
 amcl.ParticleLimits = [500 10000];           % Minimum and maximum number of particles
-amcl.GlobalLocalization = false;      % global = true      local=false = sabemos posi inicial
+amcl.GlobalLocalization = true;      % global = true      local=false = sabemos posi inicial
 amcl.InitialPose = [2 2 0];              % Initial pose of vehicle   
 amcl.InitialCovariance = diag([0.5 0.5 deg2rad(10)]*4); % Covariance of initial pose
 
@@ -136,7 +137,7 @@ while(1)
     %Rellenar el campo de la velocidad angular del mensaje de velocidad con un
     %valor proporcional a la dirección anterior (K=0.1)
     
-    msg_vel.Angular.Z=steeringDir*0.5;
+    msg_vel.Angular.Z=steeringDir*0.3;
     
     %Publicar el mensaje de velocidad
     
@@ -164,13 +165,13 @@ inflate(cpMap,0.25);
 
 planner = mobileRobotPRM;
 planner.Map=cpMap;
-planner.NumNodes=250;
-planner.ConnectionDistance = 10;
+planner.NumNodes=500;
+planner.ConnectionDistance = 3;
 
 %Obtener la ruta hacia el destino desde la posición actual del robot y mostrarla
 %en una figura
 
-waypoints = findpath(planner, [pose(1) pose(2)], endLocation);
+waypoints = findpath(planner, [estimatedPose(1) estimatedPose(2)], endLocation);
 figure;
 show(planner)
 
@@ -210,7 +211,7 @@ while(1)
     %Ejecutar el controlador PurePursuit para obtener las velocidades lineal
     %y angular
 
-    [vel,angvel] = controller(pose);
+    [vel,angvel] = controller(estimatedPose);
 
     %Llamar a VFH pasándole como “targetDir” un valor proporcional a la
     %velocidad angular calculada por el PurePursuit
@@ -222,7 +223,7 @@ while(1)
     %Calcular la velocidad angular final como una combinación lineal de la
     %generada por el controlador PurePursuit y la generada por VFH
 
-    angvel = steeringDir*1;
+    angvel = steeringDir*0.03;
     %Rellenar los campos del mensaje de velocidad
     
     msg_vel.Linear.X = vel;
@@ -234,7 +235,7 @@ while(1)
 
     %Comprobar si hemos llegado al destino, calculando la distancia euclidea
     %y estableciendo un umbral
-    if (sqrt((pose(1) - endLocation(1))^2 + (pose(2)-endLocation(2))^2) <= 0.2)
+    if (sqrt((estimatedPose(1) - endLocation(1))^2 + (estimatedPose(2)-endLocation(2))^2) <= 0.5)
         %Parar el robot
         break;
     end

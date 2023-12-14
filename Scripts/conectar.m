@@ -1,3 +1,3 @@
-rosinit('192.168.5.194', 'NodeHost', '192.168.5.222')
+rosinit('172.29.30.179', 'NodeHost', '172.29.29.76')
 %          172.29.29.113 IP UBUNTU (ifconfig)       172.29.29.111 IP WINDOWS (ipconfig)
 %               O ROBOT (pegatina)

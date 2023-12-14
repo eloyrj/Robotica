@@ -210,19 +210,19 @@ while(1)
     %Ejecutar el controlador PurePursuit para obtener las velocidades lineal
     %y angular
 
-    [vel,angvel] = controller(pose);
+    [vel,angvel] = controller(estimatedPose);
 
     %Llamar a VFH pasándole como “targetDir” un valor proporcional a la
     %velocidad angular calculada por el PurePursuit
 
-    steeringDir = VFH(lidarScan(msg_laser),angvel*0.1);
+    steeringDir = VFH(lidarScan(msg_laser),angvel);
     figure(fig_vfh);
     show(VFH)
 
     %Calcular la velocidad angular final como una combinación lineal de la
     %generada por el controlador PurePursuit y la generada por VFH
 
-    angvel = angvel*0.6 + steeringDir*0.4;
+    angvel = steeringDir*0.4;
     %Rellenar los campos del mensaje de velocidad
     
     msg_vel.Linear.X = vel;
@@ -234,7 +234,7 @@ while(1)
 
     %Comprobar si hemos llegado al destino, calculando la distancia euclidea
     %y estableciendo un umbral
-    if (sqrt((pose(1) - endLocation(1))^2 + (pose(2)-endLocation(2))^2) <= 0.2)
+    if (sqrt((estimatedPose(1) - endLocation(1))^2 + (estimatedPose(2)-endLocation(2))^2) <= 0.2)
         %Parar el robot
         break;
     end
